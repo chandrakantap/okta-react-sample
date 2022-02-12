@@ -1,24 +1,37 @@
-import logo from './logo.svg';
+import {
+  BrowserRouter as Router,
+  Route,
+  Switch
+} from "react-router-dom";
+import { Security,LoginCallback  } from '@okta/okta-react';
+import { OktaAuth } from '@okta/okta-auth-js';
+import AuthRoute from "./components/AuthRoute";
+import MainPage from "./pages/MainPage";
+import LoginPage from "./components/LoginPage";
+import config from './oktaConfig';
 import './App.css';
 
+
+const oktaAuth = new OktaAuth(config);
+
 function App() {
+  const restoreOriginalUri = () => {
+    // Callback function to restore URI during login
+  };
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+       <Security oktaAuth={oktaAuth} restoreOriginalUri={restoreOriginalUri}>
+        <Switch>
+          <Route path="/home">
+            <LoginCallback loadingElement={<MainPage />} />
+          </Route>
+          <Route path="/login">
+            <LoginPage />
+          </Route>
+          <AuthRoute path="/"><MainPage /></AuthRoute>
+        </Switch>
+      </Security>
+    </Router>
   );
 }
 
